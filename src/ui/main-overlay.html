@@ -38,6 +38,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       -webkit-app-region: no-drag;
+      cursor: pointer;
     }
 
     .control-btn {
@@ -107,6 +108,7 @@
   </div>
 
   <script>
+    const controlBar = document.querySelector('.control-bar');
     const chatBtn = document.getElementById('chatBtn');
     const visibilityBtn = document.getElementById('visibilityBtn');
     const interactionBtn = document.getElementById('interactionBtn');
@@ -114,15 +116,29 @@
 
     let isInteractive = true;
 
-    chatBtn.addEventListener('click', () => {
+    // Clicking the control bar directly opens visual chat
+    controlBar.addEventListener('click', (e) => {
+      // Open chat if clicking on the bar itself, separators, or status indicator
+      // Buttons will handle their own clicks and stop propagation
+      if (e.target === controlBar || 
+          e.target.classList.contains('separator') || 
+          e.target === statusIndicator) {
+        window.electronAPI.showVisualChat();
+      }
+    });
+
+    chatBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       window.electronAPI.showVisualChat();
     });
 
-    visibilityBtn.addEventListener('click', () => {
+    visibilityBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       window.electronAPI.toggleVisibility();
     });
 
-    interactionBtn.addEventListener('click', () => {
+    interactionBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       window.electronAPI.toggleInteraction();
     });
 

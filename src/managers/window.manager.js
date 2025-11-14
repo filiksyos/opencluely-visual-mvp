@@ -30,9 +30,10 @@ class WindowManager {
 
     window.setIgnoreMouseEvents(!this.isInteractive, { forward: true });
     window.loadFile('src/ui/main-overlay.html');
+    window.hide(); // Hidden - visual chat opens directly instead
 
     this.windows.set('overlay', window);
-    logger.info('Overlay window created');
+    logger.info('Overlay window created (hidden)');
   }
 
   async createVisualChatWindow() {
@@ -52,10 +53,12 @@ class WindowManager {
     });
 
     window.loadFile('src/ui/visual-chat.html');
-    window.hide(); // Hidden by default
+    // Show visual chat immediately on startup
+    window.show();
+    window.focus();
 
     this.windows.set('visualChat', window);
-    logger.info('Visual chat window created');
+    logger.info('Visual chat window created and shown');
   }
 
   toggleVisibility() {
