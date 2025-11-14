@@ -1,4 +1,4 @@
-# OpenCluely Visual MVP
+# Jarvis
 
 🚀 **Futuristic AI Assistant with Jarvis-like Visual Interface**
 
@@ -106,7 +106,7 @@ npm run build:linux
 
 ## 📝 License
 
-MIT License - Based on TechyCSR/OpenCluely
+MIT License - Based on TechyCSR/OpenCluely (original inspiration)
 
 ## 🙏 Credits
 

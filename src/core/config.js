@@ -4,7 +4,7 @@ class Config {
   constructor() {
     this.config = {
       app: {
-        name: 'OpenCluely Visual',
+        name: 'Jarvis',
         version: '1.0.0',
         processTitle: process.env.PROCESS_TITLE || 'Terminal ',
         isDevelopment: process.env.NODE_ENV === 'development'

@@ -1,5 +1,5 @@
 {
-  "name": "opencluely-visual-mvp",
+  "name": "jarvis",
   "version": "1.0.0",
   "description": "Futuristic AI assistant with Jarvis-like visual interface",
   "main": "main.js",
@@ -11,13 +11,16 @@
     "build:win": "electron-builder --win",
     "build:linux": "electron-builder --linux"
   },
-  "author": "OpenCluely Visual MVP",
+  "author": "Jarvis",
   "license": "MIT",
   "dependencies": {
+    "@openrouter/ai-sdk-provider": "^1.2.2",
+    "ai": "^5.0.93",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
     "mermaid": "^10.6.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
@@ -27,7 +30,7 @@
     "tailwindcss": "^3.4.0"
   },
   "build": {
-    "appId": "com.opencluely.visual",
+    "appId": "com.jarvis",
     "productName": "Terminal",
     "directories": {
       "output": "dist"
