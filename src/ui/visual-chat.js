@@ -3,10 +3,7 @@ mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
 const messagesArea = document.getElementById('messagesArea');
 const inputField = document.getElementById('inputField');
-const sendBtn = document.getElementById('sendBtn');
 const closeBtn = document.getElementById('closeBtn');
-const diagramBtn = document.getElementById('diagramBtn');
-const imageBtn = document.getElementById('imageBtn');
 
 let currentStreamingMessage = null;
 let currentToolCalls = new Map(); // Track tool calls by toolName
@@ -97,10 +94,18 @@ closeBtn.addEventListener('click', () => {
   window.electronAPI.hideVisualChat();
 });
 
-// Send message
-sendBtn.addEventListener('click', sendMessage);
-inputField.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
+// Send message on Enter (Shift+Enter for new line)
+inputField.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Auto-resize textarea
+inputField.addEventListener('input', () => {
+  inputField.style.height = 'auto';
+  inputField.style.height = Math.min(inputField.scrollHeight, 80) + 'px';
 });
 
 async function sendMessage() {
@@ -110,6 +115,7 @@ async function sendMessage() {
   // Add user message
   addMessage(text, 'user');
   inputField.value = '';
+  inputField.style.height = 'auto';
 
   // Clear previous positioned elements
   clearPositionedElements();
@@ -271,65 +277,6 @@ function clearPositionedElements() {
 }
 
 
-// Generate diagram (legacy button - kept for compatibility)
-diagramBtn.addEventListener('click', async () => {
-  const prompt = inputField.value.trim();
-  if (!prompt) {
-    alert('Please enter a diagram description');
-    return;
-  }
-
-  addMessage(`Generate diagram: ${prompt}`, 'user');
-  inputField.value = '';
-
-  const loadingMsg = addMessage('Generating diagram...', 'assistant', true);
-
-  try {
-    const result = await window.electronAPI.generateDiagram(prompt);
-    
-    if (result.success) {
-      loadingMsg.remove();
-      const diagramMsg = addMessage('Here\'s your diagram:', 'assistant');
-      await renderMermaidDiagram(diagramMsg, result.diagram);
-    } else {
-      updateMessage(loadingMsg, `Error: ${result.error}`);
-      loadingMsg.classList.remove('streaming');
-    }
-  } catch (error) {
-    updateMessage(loadingMsg, `Error: ${error.message}`);
-    loadingMsg.classList.remove('streaming');
-  }
-});
-
-// Generate image (legacy button - kept for compatibility)
-imageBtn.addEventListener('click', async () => {
-  const prompt = inputField.value.trim();
-  if (!prompt) {
-    alert('Please enter an image description');
-    return;
-  }
-
-  addMessage(`Generate image: ${prompt}`, 'user');
-  inputField.value = '';
-
-  const loadingMsg = addMessage('Generating image...', 'assistant', true);
-
-  try {
-    const result = await window.electronAPI.generateImage(prompt);
-    
-    if (result.success) {
-      loadingMsg.remove();
-      const imageMsg = addMessage('Here\'s your image:', 'assistant');
-      addImageToMessage(imageMsg, result.imageUrl);
-    } else {
-      updateMessage(loadingMsg, `Error: ${result.error}`);
-      loadingMsg.classList.remove('streaming');
-    }
-  } catch (error) {
-    updateMessage(loadingMsg, `Error: ${error.message}`);
-    loadingMsg.classList.remove('streaming');
-  }
-});
 
 // Helper functions
 function addMessage(text, role, isStreaming = false) {
