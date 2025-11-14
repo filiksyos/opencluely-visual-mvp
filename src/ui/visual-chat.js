@@ -216,7 +216,9 @@ async function addPositionedElement(type, content, position) {
     const diagramContainer = document.createElement('div');
     diagramContainer.className = 'positioned-diagram';
     try {
-      const { svg } = await mermaid.render('mermaid-' + Date.now() + Math.random(), content);
+      // Generate a valid CSS selector ID (no decimals allowed)
+      const uniqueId = 'mermaid-' + Date.now() + '-' + Math.floor(Math.random() * 1000000);
+      const { svg } = await mermaid.render(uniqueId, content);
       diagramContainer.innerHTML = svg;
       element.appendChild(diagramContainer);
     } catch (error) {
@@ -362,7 +364,9 @@ async function renderMermaidDiagram(messageElement, mermaidCode) {
   diagramContainer.className = 'diagram-container';
   
   try {
-    const { svg } = await mermaid.render('mermaid-diagram-' + Date.now(), mermaidCode);
+    // Generate a valid CSS selector ID (no decimals allowed)
+    const uniqueId = 'mermaid-diagram-' + Date.now() + '-' + Math.floor(Math.random() * 1000000);
+    const { svg } = await mermaid.render(uniqueId, mermaidCode);
     diagramContainer.innerHTML = svg;
     messageElement.appendChild(diagramContainer);
   } catch (error) {

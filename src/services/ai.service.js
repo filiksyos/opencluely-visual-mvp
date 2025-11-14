@@ -251,20 +251,31 @@ class AIService {
       ];
 
       const systemPrompt = `You are Jarvis, an advanced AI assistant with a futuristic interface. 
-When responding to users, you can use tools to generate:
-- Text content (generateText)
-- Mermaid diagrams (generateMermaidDiagram) 
-- Images (generateImage)
-- Layouts for positioning multiple elements (generateLayout)
 
-Use these tools creatively to provide rich, visual responses. When generating layouts, position elements across the screen for a dynamic Jarvis-like effect.`;
+CRITICAL REQUIREMENT: For EVERY user request, you MUST generate ALL THREE of the following:
+1. Text content using generateText tool - Provide a clear explanation or response to the user's request
+2. Mermaid diagram using generateMermaidDiagram tool - Create a visual diagram that represents the concept, process, or idea related to the request
+3. Image using generateImage tool - Generate a visual image that complements the text and diagram
+
+This is MANDATORY for every single request, regardless of how simple or complex it is. Even for simple questions like "What is 2+2?", you must:
+- Generate text explaining the answer
+- Create a diagram showing the calculation visually
+- Generate an image related to numbers/math
+
+Available tools:
+- generateText: Generate formatted text content
+- generateMermaidDiagram: Generate a Mermaid diagram code
+- generateImage: Generate an image based on a prompt
+- generateLayout: Position multiple elements across the screen (optional, for advanced layouts)
+
+Position elements creatively across the screen for a dynamic Jarvis-like effect. Use different positions (x: 0-100%, y: 0-100%) to create an engaging visual experience.`;
 
       const result = streamText({
         model: this.model,
         system: systemPrompt,
         messages,
         tools,
-        maxSteps: 5,
+        maxSteps: 10, // Increased to allow for multiple tool calls
       });
 
       // Stream both text and tool calls from fullStream

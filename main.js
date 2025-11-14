@@ -94,6 +94,7 @@ class ApplicationController {
         
         let fullText = '';
         let toolResults = [];
+        const generatedTypes = new Set(); // Track what has been generated
         
         for await (const chunk of stream) {
           if (chunk.type === 'text') {
@@ -109,6 +110,12 @@ class ApplicationController {
               toolName: chunk.toolName,
               result: chunk.result
             });
+            
+            // Track generated types
+            if (chunk.toolName === 'generateText') generatedTypes.add('text');
+            if (chunk.toolName === 'generateMermaidDiagram') generatedTypes.add('diagram');
+            if (chunk.toolName === 'generateImage') generatedTypes.add('image');
+            
             logger.info('Sending tool result', { 
               toolName: chunk.toolName, 
               resultType: typeof chunk.result,
@@ -119,6 +126,74 @@ class ApplicationController {
               toolName: chunk.toolName, 
               result: chunk.result 
             });
+          }
+        }
+        
+        // Ensure all three outputs are generated (Jarvis requirement)
+        // If any are missing, generate them automatically
+        const tools = aiService.getTools();
+        const missingTypes = [];
+        
+        // Always require positioned text element (even if text was streamed)
+        if (!generatedTypes.has('text')) {
+          missingTypes.push('text');
+        }
+        if (!generatedTypes.has('diagram')) {
+          missingTypes.push('diagram');
+        }
+        if (!generatedTypes.has('image')) {
+          missingTypes.push('image');
+        }
+        
+        if (missingTypes.length > 0) {
+          logger.info('Generating missing outputs for Jarvis requirement', { missingTypes, hasStreamedText: !!fullText });
+          
+          // Generate missing outputs
+          for (const type of missingTypes) {
+            try {
+              let result;
+              const baseX = 20 + Math.random() * 60;
+              const baseY = 20 + Math.random() * 60;
+              
+              if (type === 'text') {
+                // Use streamed text if available, otherwise create a summary
+                // This ensures text is always positioned on screen as a Jarvis element
+                const textContent = fullText.trim() || `Response to: ${text}`;
+                result = await tools.generateText.execute({ 
+                  text: textContent, 
+                  positionX: baseX, 
+                  positionY: baseY 
+                });
+                event.sender.send('tool-result', { toolName: 'generateText', result });
+                toolResults.push({ toolName: 'generateText', result });
+              } else if (type === 'diagram') {
+                // Create a diagram related to the user's request
+                const diagramPrompt = fullText 
+                  ? `Create a visual diagram representing: ${fullText.substring(0, 200)}` 
+                  : `Visual representation of: ${text}`;
+                result = await tools.generateMermaidDiagram.execute({ 
+                  description: diagramPrompt, 
+                  positionX: baseX, 
+                  positionY: baseY 
+                });
+                event.sender.send('tool-result', { toolName: 'generateMermaidDiagram', result });
+                toolResults.push({ toolName: 'generateMermaidDiagram', result });
+              } else if (type === 'image') {
+                // Create an image related to the user's request
+                const imagePrompt = fullText 
+                  ? `Visual image related to: ${fullText.substring(0, 200)}` 
+                  : `Visual image related to: ${text}`;
+                result = await tools.generateImage.execute({ 
+                  prompt: imagePrompt, 
+                  positionX: baseX, 
+                  positionY: baseY 
+                });
+                event.sender.send('tool-result', { toolName: 'generateImage', result });
+                toolResults.push({ toolName: 'generateImage', result });
+              }
+            } catch (error) {
+              logger.error(`Failed to generate missing ${type}`, { error: error.message });
+            }
           }
         }
         
