@@ -148,12 +148,36 @@ class ApplicationController {
         if (missingTypes.length > 0) {
           logger.info('Generating missing outputs for Jarvis requirement', { missingTypes, hasStreamedText: !!fullText });
           
-          // Generate missing outputs
+          // Generate missing outputs with non-overlapping positions
+          // Track positions to prevent overlap
+          const usedPositions = [];
+          const getNonOverlappingPosition = () => {
+            let attempts = 0;
+            let x, y;
+            do {
+              // Keep Y between 5% and 60% to avoid being cut off
+              x = 10 + Math.random() * 80;
+              y = 5 + Math.random() * 55;
+              attempts++;
+            } while (attempts < 50 && usedPositions.some(pos => 
+              Math.abs(pos.x - x) < 25 || Math.abs(pos.y - y) < 25
+            ));
+            usedPositions.push({ x, y });
+            return { x, y };
+          };
+          
+          // Pre-define positions for each type to ensure good spacing
+          const positionMap = {
+            text: { x: 15, y: 15 },
+            diagram: { x: 60, y: 20 },
+            image: { x: 35, y: 45 }
+          };
+          
           for (const type of missingTypes) {
             try {
               let result;
-              const baseX = 20 + Math.random() * 60;
-              const baseY = 20 + Math.random() * 60;
+              // Use predefined position or generate non-overlapping one
+              const pos = positionMap[type] || getNonOverlappingPosition();
               
               if (type === 'text') {
                 // Use streamed text if available, otherwise create a summary
@@ -161,8 +185,8 @@ class ApplicationController {
                 const textContent = fullText.trim() || `Response to: ${text}`;
                 result = await tools.generateText.execute({ 
                   text: textContent, 
-                  positionX: baseX, 
-                  positionY: baseY 
+                  positionX: pos.x, 
+                  positionY: pos.y 
                 });
                 event.sender.send('tool-result', { toolName: 'generateText', result });
                 toolResults.push({ toolName: 'generateText', result });
@@ -173,8 +197,8 @@ class ApplicationController {
                   : `Visual representation of: ${text}`;
                 result = await tools.generateMermaidDiagram.execute({ 
                   description: diagramPrompt, 
-                  positionX: baseX, 
-                  positionY: baseY 
+                  positionX: pos.x, 
+                  positionY: pos.y 
                 });
                 event.sender.send('tool-result', { toolName: 'generateMermaidDiagram', result });
                 toolResults.push({ toolName: 'generateMermaidDiagram', result });
@@ -185,8 +209,8 @@ class ApplicationController {
                   : `Visual image related to: ${text}`;
                 result = await tools.generateImage.execute({ 
                   prompt: imagePrompt, 
-                  positionX: baseX, 
-                  positionY: baseY 
+                  positionX: pos.x, 
+                  positionY: pos.y 
                 });
                 event.sender.send('tool-result', { toolName: 'generateImage', result });
                 toolResults.push({ toolName: 'generateImage', result });

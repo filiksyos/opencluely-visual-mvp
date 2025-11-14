@@ -268,7 +268,12 @@ Available tools:
 - generateImage: Generate an image based on a prompt
 - generateLayout: Position multiple elements across the screen (optional, for advanced layouts)
 
-Position elements creatively across the screen for a dynamic Jarvis-like effect. Use different positions (x: 0-100%, y: 0-100%) to create an engaging visual experience.`;
+POSITIONING REQUIREMENTS:
+- Vertical position (y): MUST be between 0% and 65% to prevent elements from being cut off at the bottom of the screen
+- Horizontal position (x): Can be between 0% and 100%
+- CRITICAL: Each element (text, diagram, image) MUST use DIFFERENT positions to avoid overlapping
+- Recommended layout: Spread elements across different areas (e.g., text at top-left, diagram at top-right, image at center-left)
+- Maintain at least 20% spacing between elements horizontally and vertically to prevent overlap`;
 
       const result = streamText({
         model: this.model,
