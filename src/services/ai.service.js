@@ -135,8 +135,8 @@ class AIService {
               headers: {
                 'Authorization': `Bearer ${this.apiKey}`,
                 'Content-Type': 'application/json',
-                'HTTP-Referer': process.env.SITE_URL || 'https://opencluely-visual-mvp',
-                'X-Title': 'OpenCluely Visual'
+                'HTTP-Referer': process.env.SITE_URL || 'https://jarvis',
+                'X-Title': 'Jarvis'
               }
             }
           );
