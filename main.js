@@ -113,7 +113,7 @@ class ApplicationController {
               toolName: chunk.toolName, 
               resultType: typeof chunk.result,
               resultKeys: chunk.result ? Object.keys(chunk.result) : null,
-              result: JSON.stringify(chunk.result).substring(0, 200)
+              result: chunk.result ? JSON.stringify(chunk.result).substring(0, 200) : 'null or undefined'
             });
             event.sender.send('tool-result', { 
               toolName: chunk.toolName, 

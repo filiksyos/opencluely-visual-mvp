@@ -270,18 +270,18 @@ Use these tools creatively to provide rich, visual responses. When generating la
       // Stream both text and tool calls from fullStream
       for await (const chunk of result.fullStream) {
         if (chunk.type === 'text-delta') {
-          yield { type: 'text', content: chunk.textDelta };
+          yield { type: 'text', content: chunk.text || chunk.textDelta };
         } else if (chunk.type === 'tool-call') {
           yield { 
             type: 'tool-call', 
             toolName: chunk.toolName,
-            args: chunk.args 
+            args: chunk.input || chunk.args 
           };
         } else if (chunk.type === 'tool-result') {
           yield { 
             type: 'tool-result', 
             toolName: chunk.toolName,
-            result: chunk.result 
+            result: chunk.output 
           };
         }
       }
